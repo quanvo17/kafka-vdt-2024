@@ -6,5 +6,6 @@
 Chạy lệnh dưới đây để khởi chạy docker compose project 
 ```sh
 cd ${thư mục clone về}
-docker compose -p vdt-kafka up -d
+docker compose -f docker-compose.zk-kafka.yml -p vdt-kafka-zk up -d
+docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-kraft up -d
 ```

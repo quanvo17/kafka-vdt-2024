@@ -1,16 +1,35 @@
 version: '3.6'
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${CONFLUENT_VERSION}
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    ports:
+     - "2181:2181"
+    container_name: zookeeper
+    healthcheck:
+      test: nc -z zookeeper 2181 || exit -1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+  
   kafka1:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
+    depends_on:
+      zookeeper:
+        condition: service_healthy
     container_name: kafka1
     environment:
-      KAFKA_NODE_ID: 1
+      KAFKA_BROKER_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093'
-      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
       KAFKA_NUM_PARTITIONS: 2
@@ -19,12 +38,12 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
+      CONFLUENT_METRICS_ENABLE: 'false'
     volumes:
       - ./config/kafka_init/run_workaround.sh:/tmp/run_workaround.sh
     ports:
       - 9092:9092
     mem_limit: ${MEM_LIMIT}
-    command: "bash -c '/tmp/run_workaround.sh && /etc/confluent/docker/run'"
     healthcheck:
       test: nc -z kafka1 9092 || exit -1
       start_period: 15s
@@ -34,15 +53,17 @@ services:
 
   kafka2:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
+    depends_on:
+      zookeeper:
+        condition: service_healthy
     container_name: kafka2
     environment:
-      KAFKA_NODE_ID: 2
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
-      KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
       KAFKA_NUM_PARTITIONS: 2
@@ -51,12 +72,12 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
+      CONFLUENT_METRICS_ENABLE: 'false'
     volumes:
       - ./config/kafka_init/run_workaround.sh:/tmp/run_workaround.sh
     ports:
       - 9094:9092
     mem_limit: ${MEM_LIMIT}
-    command: "bash -c '/tmp/run_workaround.sh && /etc/confluent/docker/run'"
     healthcheck:
       test: nc -z kafka2 9092 || exit -1
       start_period: 15s
