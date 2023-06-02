@@ -25,10 +25,9 @@ services:
     container_name: kafka1
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka1:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
@@ -60,10 +59,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9094,PLAINTEXT://kafka2:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
       KAFKA_NUM_PARTITIONS: 2
@@ -76,10 +74,10 @@ services:
     volumes:
       - ./config/kafka_init/run_workaround.sh:/tmp/run_workaround.sh
     ports:
-      - 9094:9092
+      - 9094:9094
     mem_limit: ${MEM_LIMIT}
     healthcheck:
-      test: nc -z kafka2 9092 || exit -1
+      test: nc -z kafka2 9094 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
@@ -102,7 +100,7 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
+      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect01"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
@@ -156,7 +154,7 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
+      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect02"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
@@ -200,7 +198,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     depends_on:
@@ -233,7 +231,7 @@ services:
       - 9088:8088
     environment:
       KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9092
+      KSQL_BOOTSTRAP_SERVERS: kafka1:9093,kafka2:9093
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_KSQL_CONNECT_URL: http://kafka-connect01:8083
@@ -266,7 +264,7 @@ services:
         condition: service_healthy
     environment:
       KAFKA_CLUSTERS_0_NAME: cls-queue
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9093,kafka2:9093
       KAFKA_CLUSTERS_0_METRICS_PORT: 9090
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: kc01
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect01:8083
