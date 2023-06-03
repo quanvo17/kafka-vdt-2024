@@ -12,6 +12,10 @@ docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-kraft up -d
 
 ## 2. Nội dung 
 ### 2.1. Dựng cụm Kafka cùng các thành phần liên quan
+> Mục đích: Dựng được cụm Kafka theo 2 mô hình như bài học cùng với một số 
+> các ứng dụng khác phục vụ nghiên cứu và thử nghệm. Yêu cầu cần hiểu được 
+> các cấu hình trong file docker compose
+
 **Dựng cụm Kafka với Zookeeper**
 *Mô hình triển khai*
 

@@ -5,16 +5,13 @@ import org.apache.kafka.clients.producer.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class Producer {
     private static final String TOPIC_NAME = "orders";
     private static final String BOOTSTRAP_SERVERS = "localhost:9092,localhost:9094";
-    private static final String dataPath = "D:\\2.documents\\2.viettel\\kafka-vdt-2023\\demo\\data\\orders.csv";
+    private static final String dataPath = "..\\data\\orders.csv";
 
     public static void main(String[] args) {
         Properties props = new Properties();
