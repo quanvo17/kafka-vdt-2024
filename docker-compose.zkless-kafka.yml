@@ -1,8 +1,8 @@
 version: '3.6'
 services:
-  kafka1:
+  zkless-kafka1:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
-    container_name: kafka1
+    container_name: zkless-kafka1
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
@@ -33,9 +33,9 @@ services:
       timeout: 10s
       retries: 10
 
-  kafka2:
+  zkless-kafka2:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
-    container_name: kafka2
+    container_name: zkless-kafka2
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
@@ -66,9 +66,9 @@ services:
       timeout: 10s
       retries: 10
 
-  kafka-connect01:
+  zkless-kafka-connect01:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: kafka-connect01
+    container_name: zkless-kafka-connect01
     ports:
       - 8083:8083
     depends_on:
@@ -120,9 +120,9 @@ services:
       timeout: 10s
       retries: 10
   
-  kafka-connect02:
+  zkless-kafka-connect02:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: kafka-connect02
+    container_name: zkless-kafka-connect02
     ports:
       - 8093:8083
     depends_on:
@@ -174,10 +174,10 @@ services:
       timeout: 10s
       retries: 10
 
-  schema-registry:
+  zkless-schema-registry:
     image: confluentinc/cp-schema-registry:${CONFLUENT_VERSION}
     hostname: schema-registry
-    container_name: schema-registry
+    container_name: zkless-schema-registry
     ports:
       - "8081:8081"
     environment:
@@ -197,10 +197,10 @@ services:
       timeout: 10s
       retries: 10
 
-  ksqldb:
+  zkless-ksqldb:
     image: confluentinc/ksqldb-server:${KSQL_VERSION}
     hostname: ksqldb
-    container_name: ksqldb
+    container_name: zkless-ksqldb
     depends_on:
       kafka1:
         condition: service_healthy
@@ -229,8 +229,8 @@ services:
       timeout: 10s
       retries: 10
 
-  kafka-ui:
-    container_name: kafka-ui
+  zkless-kafka-ui:
+    container_name: zkless-kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
       - 8080:8080
