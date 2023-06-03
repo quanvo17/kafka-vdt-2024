@@ -107,4 +107,5 @@ curl -i -X PUT -H "Accept:application/json" \
 - B3: Bổ sung cấu hình nhiều task 
 
 ### 2.5. Streaming Pacman
-> Mục đích: Thử nghiệm Kafka Streaming
+> Mục đích: Thử nghiệm Kafka Streaming và Confluent Kafka Cloud 
+**Hướng dẫn:** [Link](.../master/streaming-pacman/README.adoc)
