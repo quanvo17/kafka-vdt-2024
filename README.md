@@ -29,14 +29,16 @@ B2: Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết qu�
 ![Result 1](../master/images/result-1.png)
 
 **Dựng cụm Kafka với Kraft**
-```sh
-docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
-```
-Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
 *Mô hình triển khai*
 
 ![Kafka with Zookeeper deployment model](../images/)
+
+```sh
+docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
+```
+
+Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
 ### 2.2. Code producer đọc dữ liệu từ csv đẩy vào Kakfa
 ### 2.3. Code consumer lấy dữ liệu từ Kafka ra
