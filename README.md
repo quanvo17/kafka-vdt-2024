@@ -23,7 +23,8 @@ docker compose -f docker-compose.zk-kafka.yml -p vdt-kafka-zk up -d
 ```
 Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
-B2: Truy cập vào link [Kafka UI](http://localhost:8080)
+B2: Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
+
 ![Result 1](../master/images/result-1.png)
 
 
