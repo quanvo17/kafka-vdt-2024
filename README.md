@@ -13,6 +13,7 @@ docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-kraft up -d
 ## 2. Nội dung 
 ### 2.1. Dựng cụm Kafka cùng các thành phần liên quan
 **Dựng cụm Kafka với Zookeeper**
+
 *Mô hình triển khai*
 
 ![Kafka with Zookeeper deployment model](../images/)
@@ -26,7 +27,6 @@ Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/
 B2: Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
 
 ![Result 1](../master/images/result-1.png)
-
 
 **Dựng cụm Kafka với Kraft**
 ```sh
