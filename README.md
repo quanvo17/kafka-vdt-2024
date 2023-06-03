@@ -45,7 +45,23 @@ docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
 Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
 ### 2.2. Code producer đọc dữ liệu từ csv đẩy vào Kakfa
+> Mục đích: Thử nghiệm code producer đẩy dữ liệu order từ file csv vào topic orders 
+> của cụm Kafka vừa dựng. Yêu cầu cần hiểu được cách tạo 1 producer cơ bản và luồng ghi dữ liệu vào Kafka
+
+B1: Khởi tạo project ở thư mục demo
+
+B2: Chạy hàm main ở file Producer.java. Kết quả được trả ra đúng sẽ như hình dưới:
+
+![Result 2.1](../master/images/result-2.1.png)
+
+B3: Truy cập [Kafka UI](http://localhost:8080/ui/clusters/cls-queue/all-topics/orders/messages?keySerde=String&valueSerde=String&limit=100) để kiểm tra kết quả message
+
+![Result 2.2](../master/images/result-2.2.png)
+
 ### 2.3. Code consumer lấy dữ liệu từ Kafka ra
+> Mục đích: Thử nghiệm code consumer lấy dữ liệu topic orders và in ra màn hình. 
+> Yêu cầu cần hiểu được cách tạo 1 consumer cơ bản và luồng đọc dữ liệu vào Kafka
+
 ### 2.4. Tạo Kafka Connect đọc dữ liệu từ csv đẩy vào Kafka
 - B1: Kiểm tra plugin của Kafka Connect
 
@@ -79,8 +95,6 @@ curl -i -X PUT -H "Accept:application/json" \
         "csv.first.row.as.header":"true"
         }'
 ```
-
-Vào Kafka Connect
 - B3: Bổ sung cấu hình nhiều task 
 
 ### 2.5. Streaming Pacman

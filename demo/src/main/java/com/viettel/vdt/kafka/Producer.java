@@ -11,7 +11,7 @@ import java.util.Properties;
 public class Producer {
     private static final String TOPIC_NAME = "orders";
     private static final String BOOTSTRAP_SERVERS = "localhost:9092,localhost:9094";
-    private static final String dataPath = "..\\data\\orders.csv";
+    private static final String dataPath = "data\\orders.csv";
 
     public static void main(String[] args) {
         Properties props = new Properties();
