@@ -62,7 +62,16 @@ B3: Truy cập [Kafka UI](http://localhost:8080/ui/clusters/cls-queue/all-topics
 > Mục đích: Thử nghiệm code consumer lấy dữ liệu topic orders và in ra màn hình. 
 > Yêu cầu cần hiểu được cách tạo 1 consumer cơ bản và luồng đọc dữ liệu vào Kafka
 
+B1: Khởi tạo project ở thư mục demo
+
+B2: Chạy hàm main ở file VdtConsumer.java. Kết quả được trả ra đúng sẽ như hình dưới
+
+![Result 3](../master/images/result-3.1.png)
+
 ### 2.4. Tạo Kafka Connect đọc dữ liệu từ csv đẩy vào Kafka
+> Mục đích: Tạo được Connectors để lấy dữ liệu từ file orders và đẩy vào topics connect-orders.
+> Yêu cầu cần hiểu được các cấu hình để tạo connector source và thử nghiệm chạy Kafka connect distributed mode.
+
 - B1: Kiểm tra plugin của Kafka Connect
 
 ```sh
@@ -86,7 +95,7 @@ curl -i -X PUT -H "Accept:application/json" \
     -H  "Content-Type:application/json" http://localhost:8083/connectors/source-csv-spooldir-00/config \
     -d '{
         "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
-        "topic": "orders_spooldir_00",
+        "topic": "connect-orders",
         "input.path": "/data/unprocessed",
         "finished.path": "/data/processed",
         "error.path": "/data/error",
@@ -98,3 +107,4 @@ curl -i -X PUT -H "Accept:application/json" \
 - B3: Bổ sung cấu hình nhiều task 
 
 ### 2.5. Streaming Pacman
+> Mục đích: Thử nghiệm Kafka Streaming
