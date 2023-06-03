@@ -17,6 +17,7 @@ docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-kraft up -d
 > các cấu hình trong file docker compose
 
 **Dựng cụm Kafka với Zookeeper**
+
 *Mô hình triển khai*
 
 ![Kafka with Zookeeper deployment model](../images/)
@@ -27,19 +28,21 @@ docker compose -f docker-compose.zk-kafka.yml -p vdt-kafka-zk up -d
 ```
 Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
-B2: Truy cập vào link [Kafka UI](http://localhost:8080)
-![Result 1](../images/result-1.png)
+B2: Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
 
+![Result 1](../master/images/result-1.png)
 
 **Dựng cụm Kafka với Kraft**
-```sh
-docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
-```
-Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
 *Mô hình triển khai*
 
 ![Kafka with Zookeeper deployment model](../images/)
+
+```sh
+docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
+```
+
+Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
 ### 2.2. Code producer đọc dữ liệu từ csv đẩy vào Kakfa
 ### 2.3. Code consumer lấy dữ liệu từ Kafka ra
