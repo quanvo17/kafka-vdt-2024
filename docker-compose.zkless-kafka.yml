@@ -1,15 +1,15 @@
 version: '3.6'
 services:
-  zkless-kafka1:
+  broker01:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
-    container_name: zkless-kafka1
+    container_name: broker01
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_LISTENERS: PLAINTEXT://broker01:9092,CONTROLLER://broker01:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker01:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker01:9093,2@broker02:9093'
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
@@ -27,22 +27,22 @@ services:
     mem_limit: ${MEM_LIMIT}
     command: "bash -c '/tmp/run_workaround.sh && /etc/confluent/docker/run'"
     healthcheck:
-      test: nc -z kafka1 9092 || exit -1
+      test: nc -z broker01 9092 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
       retries: 10
 
-  zkless-kafka2:
+  broker02:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
-    container_name: zkless-kafka2
+    container_name: broker02
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
+      KAFKA_LISTENERS: PLAINTEXT://broker02:9092,CONTROLLER://broker02:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker02:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker01:9093,2@broker02:9093'
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_JMX_PORT: 9090
       KAFKA_LOG_DIRS: /var/log/kafka
@@ -60,21 +60,21 @@ services:
     mem_limit: ${MEM_LIMIT}
     command: "bash -c '/tmp/run_workaround.sh && /etc/confluent/docker/run'"
     healthcheck:
-      test: nc -z kafka2 9092 || exit -1
+      test: nc -z broker02 9092 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
       retries: 10
 
-  zkless-kafka-connect01:
+  kc01:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: zkless-kafka-connect01
+    container_name: kc01
     ports:
       - 8083:8083
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
@@ -83,7 +83,7 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
+      CONNECT_BOOTSTRAP_SERVERS: "broker01:9092,broker02:9092"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect01"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
@@ -114,21 +114,21 @@ services:
         #
         sleep infinity
     healthcheck:
-      test: nc -z kafka-connect01 8083 || exit -1
+      test: nc -z kc01 8083 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
       retries: 10
   
-  zkless-kafka-connect02:
+  kc02:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: zkless-kafka-connect02
+    container_name: kc02
     ports:
       - 8093:8083
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
@@ -137,8 +137,8 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect02"
+      CONNECT_BOOTSTRAP_SERVERS: "broker01:9092,broker02:9092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kc02"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
@@ -168,26 +168,26 @@ services:
         #
         sleep infinity
     healthcheck:
-      test: nc -z kafka-connect02 8083 || exit -1
+      test: nc -z kc02 8083 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
       retries: 10
 
-  zkless-schema-registry:
+  schema-registry:
     image: confluentinc/cp-schema-registry:${CONFLUENT_VERSION}
     hostname: schema-registry
-    container_name: zkless-schema-registry
+    container_name: schema-registry
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:9092,kafka2:9092"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker01:9092,broker02:9092"
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
     mem_limit: ${MEM_LIMIT}
     healthcheck:
@@ -197,18 +197,18 @@ services:
       timeout: 10s
       retries: 10
 
-  zkless-ksqldb:
+  ksqldb:
     image: confluentinc/ksqldb-server:${KSQL_VERSION}
     hostname: ksqldb
-    container_name: zkless-ksqldb
+    container_name: ksqldb
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
-      kafka-connect01:
+      kc01:
         condition: service_healthy
-      kafka-connect02:
+      kc02:
         condition: service_healthy
     ports:
       - 9088:8088
@@ -229,30 +229,30 @@ services:
       timeout: 10s
       retries: 10
 
-  zkless-kafka-ui:
+  kafka-ui:
     container_name: zkless-kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
       - 8080:8080
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
-      kafka-connect01:
+      kc01:
         condition: service_healthy
-      kafka-connect02:
+      kc02:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
     environment:
       KAFKA_CLUSTERS_0_NAME: cls-queue
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker01:9092,broker02:9092
       KAFKA_CLUSTERS_0_METRICS_PORT: 9090
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: kc01
-      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect01:8083
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kc01:8083
       KAFKA_CLUSTERS_0_KAFKACONNECT_1_NAME: kc02
-      KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://kafka-connect02:8083
+      KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://kc02:8083
       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
     mem_limit: ${MEM_LIMIT}
     healthcheck:

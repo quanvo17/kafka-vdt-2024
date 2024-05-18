@@ -1,0 +1,10 @@
+.idea/
+.idea_modules/
+.DS_Store
+.cache
+/lib/
+/connectors
+checkpoint
+dependency-reduced-pom.xml
+out/
+target/
