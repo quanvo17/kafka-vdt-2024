@@ -27,27 +27,32 @@ public class VdtConsumer {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        Consumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singletonList(TOPIC_NAME));
+        try (Consumer<String, String> consumer = new KafkaConsumer<>(props)) {
+            consumer.subscribe(Collections.singletonList(TOPIC_NAME));
+            boolean stopFlags = true;
 
-        CSVParser csvParser = new CSVParser();
-
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-            records.forEach(record -> {
-                String csvData = record.value();
-                try (CSVReader csvReader = new CSVReader(new StringReader(csvData))) {
-                    String[] fields = csvReader.readNext();
-                    // Process the fields or perform operations on the CSV data
-                    for (String field : fields) {
-                        System.out.print(field + " ");
+            while (stopFlags) {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                // Process each record
+                records.forEach(record -> {
+                    String csvData = record.value();
+                    try (CSVReader csvReader = new CSVReader(new StringReader(csvData))) {
+                        String[] fields = csvReader.readNext();
+                        // Process the fields or perform operations on the CSV data
+                        for (String field : fields) {
+                            System.out.print(field + " ");
+                        }
+                        System.out.println();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    System.out.println();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
 }
