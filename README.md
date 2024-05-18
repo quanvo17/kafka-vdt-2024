@@ -23,7 +23,7 @@ docker compose -f docker-compose.zk-kafka.yml pull
 
 *Mô hình triển khai*
 
-![Kafka with Zookeeper deployment model](../assets/)
+![Kafka with Zookeeper deployment model](../assets/zk-architecture.png)
 
 **B1:** Chạy lệnh docker compose 
 ```sh
@@ -33,13 +33,13 @@ Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/
 
 **B2:** Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
 
-![Result 1](../master/assets/result-1.png)
+![Result 1](../assets/result-1.png)
 
 **Dựng cụm Kafka với Kraft**
 
 *Mô hình triển khai*
 
-![ ](../assets/)
+![ ](../assets/kraft-architecture.png)
 
 ```sh
 docker compose -f docker-compose.zk-kafka.yml down
@@ -57,11 +57,11 @@ B1: Khởi tạo project ở thư mục csv2kafka
 
 B2: Chạy hàm main ở file Producer.java. Kết quả được trả ra đúng sẽ như hình dưới:
 
-![Result 2.1](../master/assets/result-2.1.png)
+![Result 2.1](../assets/result-2.1.png)
 
 B3: Truy cập [Kafka UI](http://localhost:8080/ui/clusters/cls-queue/all-topics/orders/messages?keySerde=String&valueSerde=String&limit=100) để kiểm tra kết quả message
 
-![Result 2.2](../master/assets/result-2.2.png)
+![Result 2.2](../assets/result-2.2.png)
 
 ### 2.3. Code consumer lấy dữ liệu từ Kafka ra
 > Mục đích: Thử nghiệm code consumer lấy dữ liệu topic orders và in ra màn hình. 
@@ -71,7 +71,7 @@ B1: Khởi tạo project ở thư mục demo
 
 B2: Chạy hàm main ở file VdtConsumer.java. Kết quả được trả ra đúng sẽ như hình dưới
 
-![Result 3](../master/assets/result-3.1.png)
+![Result 3](../assets/result-3.1.png)
 
 ### 2.4. Tạo Kafka Connect đọc dữ liệu từ csv đẩy vào Kafka
 > Mục đích: Tạo được Connectors để lấy dữ liệu từ file orders và đẩy vào topics connect-orders.
