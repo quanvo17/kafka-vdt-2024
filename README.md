@@ -1,4 +1,4 @@
-# VDT 2023 - Thực hành Kafka
+# VDT 2024 - Thực hành Kafka
 
 > Required: Máy cần cài đặt sẵn Docker. Cấu hình máy cần RAM >= 8GB. Môi trường thử nghiệm: Window 11
 
