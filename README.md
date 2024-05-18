@@ -4,18 +4,20 @@
 
 ## 1. Chuẩn bị trước
 
-B1: Clone repo và truy cập vào thư mục
-B2: Thực hiện chạy câu lệnh để pull docker images cần thiết cho bài thực hành
+**B1:** Clone repo và truy cập vào thư mục
+
+**B2:** Chạy câu lệnh để pull docker images cần thiết cho bài thực hành
 
 ```sh
 docker compose -f docker-compose.zk-kafka.yml pull
 ```
 
 ## 2. Nội dung 
-### 2.1. Dựng cụm Kafka cùng các thành phần liên quan
-> Mục đích: Dựng được cụm Kafka theo 2 mô hình như bài học cùng với một số 
-> các ứng dụng khác phục vụ nghiên cứu và thử nghệm. Yêu cầu cần hiểu được 
-> các cấu hình trong file docker compose
+### 2.1. Triển khai Kafka Cluster
+> **Yêu cầu** 
+> - Triển khai Kafka Cluster theo 2 mode Zookeeper hoặc Kraft
+> - Hiểu được mô hình hoạt động của cả 2 mô hình
+> - Hiểu được các cấu hình cơ bản của Kafka Cluster
 
 **Dựng cụm Kafka với Zookeeper**
 
@@ -23,13 +25,13 @@ docker compose -f docker-compose.zk-kafka.yml pull
 
 ![Kafka with Zookeeper deployment model](../assets/)
 
-B1: Chạy lệnh docker compose 
+**B1:** Chạy lệnh docker compose 
 ```sh
 docker compose -f docker-compose.zk-kafka.yml -p vdt-kafka-zk up -d
 ```
 Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
-B2: Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
+**B2:** Truy cập vào link [Kafka UI](http://localhost:8080) sẽ thấy kết quả như hình
 
 ![Result 1](../master/assets/result-1.png)
 
