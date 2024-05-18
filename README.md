@@ -42,24 +42,25 @@ Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/
 ![ ](../master/assets/kraft-architecture.png)
 
 ```sh
-docker compose -f docker-compose.zk-kafka.yml down
+docker compose -f docker-compose.zk-kafka.yml -p vdt-kafka-zk down
 
 docker compose -f docker-compose.zkless-kafka.yml -p vdt-kafka-zkless up -d
 ```
 
 Các cấu hình của Kafka Broker xem tại [đây](https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html)
 
-### 2.2. Code producer đọc dữ liệu từ csv đẩy vào Kakfa
-> Mục đích: Thử nghiệm code producer đẩy dữ liệu order từ file csv vào topic orders 
-> của cụm Kafka vừa dựng. Yêu cầu cần hiểu được cách tạo 1 producer cơ bản và luồng ghi dữ liệu vào Kafka
+### 2.2. Đẩy dữ liệu từ File CSV vào Kafka
+> **Yêu cầu** 
+> - Code Producer cơ bản bằng Java để đẩy dữ liệu từ file CSV vào Kafka
+> - Hiểu cách hoạt động và các cấu hình cơ bản của Producer
 
-B1: Khởi tạo project ở thư mục csv2kafka
+**B1:** Khởi tạo project ở thư mục csv2kafka
 
-B2: Chạy hàm main ở file Producer.java. Kết quả được trả ra đúng sẽ như hình dưới:
+**B2:** Chạy hàm main ở file Producer.java. Kết quả được trả ra đúng sẽ như hình dưới:
 
 ![Result 2.1](../master/assets/result-2.1.png)
 
-B3: Truy cập [Kafka UI](http://localhost:8080/ui/clusters/cls-queue/all-topics/orders/messages?keySerde=String&valueSerde=String&limit=100) để kiểm tra kết quả message
+**B3:** Truy cập [Kafka UI](http://localhost:8080/ui/clusters/cls-queue/all-topics/orders/messages?keySerde=String&valueSerde=String&limit=100) để kiểm tra kết quả message
 
 ![Result 2.2](../master/assets/result-2.2.png)
 

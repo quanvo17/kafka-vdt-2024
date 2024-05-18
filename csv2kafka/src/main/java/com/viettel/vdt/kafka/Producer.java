@@ -11,7 +11,7 @@ import java.util.Properties;
 public class Producer {
     private static final String TOPIC_NAME = "orders";
     private static final String BOOTSTRAP_SERVERS = "localhost:9092,localhost:9094";
-    private static final String dataPath = "data\\orders.csv";
+    private static final String dataPath = "..\\data\\orders.csv";
 
     public static void main(String[] args) {
         Properties props = new Properties();
@@ -19,16 +19,16 @@ public class Producer {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(dataPath))) {
+        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+             BufferedReader reader = new BufferedReader(new FileReader(dataPath))) {
             String line;
             int recordCount = 0;
 
             while ((line = reader.readLine()) != null) {
                 // Process the CSV line and create a ProducerRecord
                 String[] fields = line.split(",");
-                String key = fields[0];  // Assuming the key is in the first column
+//                String key = fields[0];  // Assuming the key is in the first column
+                String key = getKey(fields); // Control partitions of records
                 ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, key, line);
 
                 // Send the record and handle the result with callback
@@ -40,7 +40,7 @@ public class Producer {
                                     ", partition: " + metadata.partition() +
                                     ", offset: " + metadata.offset());
                         } else {
-                            System.err.println("Error while sending record " + record.key() + ": "+ exception.getMessage());
+                            System.err.println("Error while sending record " + record.key() + ": " + exception.getMessage());
                         }
                     }
                 });
@@ -50,10 +50,14 @@ public class Producer {
 
             System.out.println(recordCount + " records sent to Kafka successfully.");
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            producer.close();
+            System.out.println("Source not found or Can't connect to Kafka Broker");
         }
+    }
+
+    private static String getKey (String [] fields) {
+        if (Integer.parseInt(fields[0]) % 3 == 0)
+            return "selected";
+        else return "other";
     }
 
     private static void sendBatch(KafkaProducer<String, String> producer, List<ProducerRecord<String, String>> batchRecords) {

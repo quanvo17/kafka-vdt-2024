@@ -26,7 +26,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://broker01:9092,PLAINTEXT://broker01:9093
+      KAFKA_LISTENERS: PLAINTEXT_HOST://broker01:9092,PLAINTEXT://broker01:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT://broker01:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
@@ -44,7 +45,7 @@ services:
       - 9092:9092
     mem_limit: ${MEM_LIMIT}
     healthcheck:
-      test: nc -z kafka1 9092 || exit -1
+      test: nc -z broker01 9092 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
@@ -59,7 +60,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://broker02:9094,PLAINTEXT://broker02:9093
+      KAFKA_LISTENERS: PLAINTEXT_HOST://broker01:9094,PLAINTEXT://broker01:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9094,PLAINTEXT://broker02:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
@@ -77,7 +79,7 @@ services:
       - 9094:9094
     mem_limit: ${MEM_LIMIT}
     healthcheck:
-      test: nc -z kafka2 9094 || exit -1
+      test: nc -z broker02 9094 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
@@ -93,8 +95,8 @@ services:
         condition: service_healthy
       broker02:
         condition: service_healthy
-      schema-registry:
-        condition: service_healthy
+      # schema-registry:
+      #   condition: service_healthy
     volumes:
       - ./connectors:/home/appuser/connectors
       - ./libs:/home/appuser/libs
@@ -107,10 +109,10 @@ services:
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
       CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-offsets
       CONNECT_STATUS_STORAGE_TOPIC: _kafka-connect-status
-      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      # CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
@@ -147,8 +149,8 @@ services:
         condition: service_healthy
       broker02:
         condition: service_healthy
-      schema-registry:
-        condition: service_healthy
+      # schema-registry:
+      #   condition: service_healthy
     volumes:
       - ./connectors:/home/appuser/connectors
       - ./libs:/home/appuser/libs
@@ -161,10 +163,10 @@ services:
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
       CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-offsets
       CONNECT_STATUS_STORAGE_TOPIC: _kafka-connect-status
-      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      # CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
@@ -191,60 +193,60 @@ services:
       timeout: 10s
       retries: 10
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:${CONFLUENT_VERSION}
-    hostname: schema-registry
-    container_name: schema-registry
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker01:9093,broker02:9093"
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    depends_on:
-      broker01:
-        condition: service_healthy
-      broker02:
-        condition: service_healthy
-    mem_limit: ${MEM_LIMIT}
-    healthcheck:
-      test: nc -z schema-registry 8081 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
+  # schema-registry:
+  #   image: confluentinc/cp-schema-registry:${CONFLUENT_VERSION}
+  #   hostname: schema-registry
+  #   container_name: schema-registry
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker01:9093,broker02:9093"
+  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+  #   depends_on:
+  #     broker01:
+  #       condition: service_healthy
+  #     broker02:
+  #       condition: service_healthy
+  #   mem_limit: ${MEM_LIMIT}
+  #   healthcheck:
+  #     test: nc -z schema-registry 8081 || exit -1
+  #     start_period: 15s
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 10
 
-  ksqldb:
-    image: confluentinc/ksqldb-server:${KSQL_VERSION}
-    hostname: ksqldb
-    container_name: ksqldb
-    depends_on:
-      broker01:
-        condition: service_healthy
-      broker02:
-        condition: service_healthy
-      kc01:
-        condition: service_healthy
-      kc02:
-        condition: service_healthy
-    ports:
-      - 9088:8088
-    environment:
-      KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_BOOTSTRAP_SERVERS: broker01:9093,broker02:9093
-      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
-      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
-      KSQL_KSQL_CONNECT_URL: http://kc01:8083
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      KSQL_KSQL_SERVICE_ID: confluent_rmoff_01
-      KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
-    mem_limit: ${MEM_LIMIT}
-    healthcheck:
-      test: nc -z ksqldb 8088 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
+  # ksqldb:
+  #   image: confluentinc/ksqldb-server:${KSQL_VERSION}
+  #   hostname: ksqldb
+  #   container_name: ksqldb
+  #   depends_on:
+  #     broker01:
+  #       condition: service_healthy
+  #     broker02:
+  #       condition: service_healthy
+  #     kc01:
+  #       condition: service_healthy
+  #     kc02:
+  #       condition: service_healthy
+  #   ports:
+  #     - 9088:8088
+  #   environment:
+  #     KSQL_LISTENERS: http://0.0.0.0:8088
+  #     KSQL_BOOTSTRAP_SERVERS: broker01:9093,broker02:9093
+  #     KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+  #     KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+  #     KSQL_KSQL_CONNECT_URL: http://kc01:8083
+  #     KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+  #     KSQL_KSQL_SERVICE_ID: confluent_rmoff_01
+  #     KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+  #   mem_limit: ${MEM_LIMIT}
+  #   healthcheck:
+  #     test: nc -z ksqldb 8088 || exit -1
+  #     start_period: 15s
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 10
 
   kafka-ui:
     container_name: kafka-ui
@@ -258,19 +260,19 @@ services:
         condition: service_healthy
       kc01:
         condition: service_healthy
-      kc01:
+      kc02:
         condition: service_healthy
-      schema-registry:
-        condition: service_healthy
+      # schema-registry:
+      #   condition: service_healthy
     environment:
-      KAFKA_CLUSTERS_0_NAME: cls-queue
+      KAFKA_CLUSTERS_0_NAME: vdt-kafka-cluster
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker01:9093,broker02:9093
       KAFKA_CLUSTERS_0_METRICS_PORT: 9090
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: kc01
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kc01:8083
       KAFKA_CLUSTERS_0_KAFKACONNECT_1_NAME: kc02
       KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://kc02:8083
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      # KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
     mem_limit: ${MEM_LIMIT}
     healthcheck:
       test: nc -z kafka-ui 8080 || exit -1
