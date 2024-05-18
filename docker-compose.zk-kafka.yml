@@ -17,16 +17,16 @@ services:
       timeout: 10s
       retries: 10
   
-  kafka1:
+  broker01:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
     depends_on:
       zookeeper:
         condition: service_healthy
-    container_name: kafka1
+    container_name: broker01
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka1:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://broker01:9092,PLAINTEXT://broker01:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
@@ -50,16 +50,16 @@ services:
       timeout: 10s
       retries: 10
 
-  kafka2:
+  broker02:
     image: confluentinc/cp-kafka:${CONFLUENT_VERSION}
     depends_on:
       zookeeper:
         condition: service_healthy
-    container_name: kafka2
+    container_name: broker02
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9094,PLAINTEXT://kafka2:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://broker02:9094,PLAINTEXT://broker02:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_JMX_PORT: 9090
@@ -83,15 +83,15 @@ services:
       timeout: 10s
       retries: 10
 
-  kafka-connect01:
+  kc01:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: kafka-connect01
+    container_name: kc01
     ports:
       - 8083:8083
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
@@ -100,8 +100,8 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect01"
+      CONNECT_BOOTSTRAP_SERVERS: "broker01:9093,broker02:9093"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kc01"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
@@ -131,21 +131,21 @@ services:
         #
         sleep infinity
     healthcheck:
-      test: nc -z kafka-connect01 8083 || exit -1
+      test: nc -z kc01 8083 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
       retries: 10
   
-  kafka-connect02:
+  kc02:
     image: confluentinc/cp-kafka-connect:${CONFLUENT_VERSION}
-    container_name: kafka-connect02
+    container_name: kc02
     ports:
       - 8093:8083
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
@@ -154,8 +154,8 @@ services:
       - ./libs:/home/appuser/libs
     environment:
       CLASSPATH: /home/appuser/libs/*
-      CONNECT_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect02"
+      CONNECT_BOOTSTRAP_SERVERS: "broker01:9093,broker02:9093"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kc02"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: kafka-connect-vdt
       CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-configs
@@ -185,7 +185,7 @@ services:
         #
         sleep infinity
     healthcheck:
-      test: nc -z kafka-connect02 8083 || exit -1
+      test: nc -z kc02 8083 || exit -1
       start_period: 15s
       interval: 5s
       timeout: 10s
@@ -198,13 +198,13 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:9093,kafka2:9093"
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker01:9093,broker02:9093"
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
     mem_limit: ${MEM_LIMIT}
     healthcheck:
@@ -219,22 +219,22 @@ services:
     hostname: ksqldb
     container_name: ksqldb
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
-      kafka-connect01:
+      kc01:
         condition: service_healthy
-      kafka-connect02:
+      kc02:
         condition: service_healthy
     ports:
       - 9088:8088
     environment:
       KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_BOOTSTRAP_SERVERS: kafka1:9093,kafka2:9093
+      KSQL_BOOTSTRAP_SERVERS: broker01:9093,broker02:9093
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
-      KSQL_KSQL_CONNECT_URL: http://kafka-connect01:8083
+      KSQL_KSQL_CONNECT_URL: http://kc01:8083
       KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       KSQL_KSQL_SERVICE_ID: confluent_rmoff_01
       KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
@@ -252,24 +252,24 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      kafka1:
+      broker01:
         condition: service_healthy
-      kafka2:
+      broker02:
         condition: service_healthy
-      kafka-connect01:
+      kc01:
         condition: service_healthy
-      kafka-connect02:
+      kc01:
         condition: service_healthy
       schema-registry:
         condition: service_healthy
     environment:
       KAFKA_CLUSTERS_0_NAME: cls-queue
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9093,kafka2:9093
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker01:9093,broker02:9093
       KAFKA_CLUSTERS_0_METRICS_PORT: 9090
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: kc01
-      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect01:8083
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kc01:8083
       KAFKA_CLUSTERS_0_KAFKACONNECT_1_NAME: kc02
-      KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://kafka-connect02:8083
+      KAFKA_CLUSTERS_0_KAFKACONNECT_1_ADDRESS: http://kc02:8083
       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
     mem_limit: ${MEM_LIMIT}
     healthcheck:
